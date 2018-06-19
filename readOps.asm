@@ -52,9 +52,14 @@ mul:    bne $t2, 42, div
 	jal multOperation
 	j pres
 
-div:    bne $t2, 47, err
+div:    bne $t2, 47, pow
 	jal divOperation
 	j pres
+	
+pow:    bne $t2, 94, err
+	jal powOperation
+	j pres
+	
 
 err:    la $a0, errstr
 	li $v0, 5
@@ -136,5 +141,29 @@ multOperation:
 	
 	jr $ra	
 
+powOperation:
+	addi $sp, $sp -8
+	sw $ra, 4($sp) # push return program counter to stack
+	sw $fp, 0($sp) # push value of current frame pointer to stack
+	move $fp, $sp
 
+        beq $a1, 0, basePow #if we got 0th power, 
+	j recursePow
+
+
+basePow:
+        li $v0 1 #any number raised to the 0th power will always return 1
+        j endPow
+       
+recursePow:
+        addi $a1, $a1, -1 #decrement power
+        jal powOperation #recurse
+	move $sp, $fp 
+	move $t0 $v0
+        mul $v0 $a0 $t0 #multiply result by the base and pass it up
+	j endPow 
+endPow:
+	lw $fp, 0($sp)
+	lw $ra, 4($sp)
+	jr $ra	
 		
