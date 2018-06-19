@@ -9,7 +9,6 @@ errstr: .asciiz "operator not supported"
 main:
 
 	move $fp, $sp
-	addi $sp, $sp -16
 	
 	la $a0, np
 	li $v0, 4
@@ -37,8 +36,9 @@ main:
 	syscall
 	
 	move $t2, $v0
-	sw $t0, 16($sp)
-	sw $t1, 12($sp)
+	
+	move $a0, $t0
+	move $a1, $t1
 	
 add:    bne $t2, 43, sub
 	jal addOperation
@@ -60,7 +60,8 @@ err:    la $a0, errstr
 	li $v0, 5
 	syscall
 	
-pres:   
+pres:
+	move $sp, $fp   
 	move $t3, $v0
 	la $a0, res
 	li $v0, 4
@@ -74,54 +75,66 @@ pres:
 	syscall
 	
 addOperation:   
-	sw $ra, 8($sp) # push return program counter to stack
-	sw $fp, 4($sp) # push value of current frame pointer to stack
+	addi $sp, $sp -8
+	sw $ra, 4($sp) # push return program counter to stack
+	sw $fp, 0($sp) # push value of current frame pointer to stack
 	move $fp, $sp
 	
-	lw $t0, 16($fp)
-	lw $t1, 12($fp)
+	#lw $t0, 16($fp)
+	#lw $t1, 12($fp)
 	
-	add $v0, $t0, $t1
+	add $v0, $a0, $a1
 	
-	lw $t0, 8($fp)
-	jr $t0
+	lw $fp, 0($sp)
+	
+	
+	jr $ra
 	
 subOperation:   
-	sw $ra, 8($sp) # push return program counter to stack
-	sw $fp, 4($sp) # push value of current frame pointer to stack
+	addi $sp, $sp -8
+	sw $ra, 4($sp) # push return program counter to stack
+	sw $fp, 0($sp) # push value of current frame pointer to stack
 	move $fp, $sp
 	
-	lw $t0, 16($fp)
-	lw $t1, 12($fp)
+	#lw $t0, 16($fp)
+	#lw $t1, 12($fp)
 	
-	sub $v0, $t0, $t1
+	sub $v0, $a0, $a1
 	
-	lw $t0, 8($fp)
-	jr $t0	
+	lw $fp, 0($sp)
+	
+	
+	jr $ra
 	
 divOperation:   
-	sw $ra, 8($sp) # push return program counter to stack
-	sw $fp, 4($sp) # push value of current frame pointer to stack
+	addi $sp, $sp -8
+	sw $ra, 4($sp) # push return program counter to stack
+	sw $fp, 0($sp) # push value of current frame pointer to stack
 	move $fp, $sp
 	
-	lw $t0, 16($fp)
-	lw $t1, 12($fp)
+	#lw $t0, 16($fp)
+	#lw $t1, 12($fp)
 	
-	div $v0, $t0, $t1
+	div $v0, $a0, $a1
 	
-	lw $t0, 8($fp)
-	jr $t0	
+	lw $fp, 0($sp)
+	
+	jr $ra	
 	
 multOperation:   
-	sw $ra, 8($sp) # push return program counter to stack
-	sw $fp, 4($sp) # push value of current frame pointer to stack
+	addi $sp, $sp -8
+	sw $ra, 4($sp) # push return program counter to stack
+	sw $fp, 0($sp) # push value of current frame pointer to stack
 	move $fp, $sp
 	
-	lw $t0, 16($fp)
-	lw $t1, 12($fp)
+	#lw $t0, 16($fp)
+	#lw $t1, 12($fp)
 	
-	mul $v0, $t0, $t1
+	mul $v0, $a0, $a1
 	
-	lw $t0, 8($fp)
-	jr $t0	
+	lw $fp, 0($sp)
+	
+	jr $ra	
+
+
 		
