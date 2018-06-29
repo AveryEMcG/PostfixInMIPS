@@ -12,6 +12,10 @@ panic: .asciiz "Error has occurred\n"
 	li $v0, 10
 	syscall
 	.end_macro 
+	
+	.macro BRONT
+	$t2
+	.end_macro
 
 main:
 
@@ -36,13 +40,6 @@ main:
 	li $v0, 8
 	syscall
 	
-	# allocate 128 bytes on the heap for storing seen numbers
-	li $a0, 128
-	li $v0, 9
-	syscall
-	move $s1, $v0
-	# byte s1[128]
-	
 	# allocate 128 words on the heap for storing a stack of operands 
 	li $a0, 512
 	li $v0, 9
@@ -57,11 +54,12 @@ while:
 	lb $t1, ($t0)
 	beqz $t1, end
 	sub $t2, $t1, '0'
+	
 	bltz $t2, temporary_panic
 	bgt $t2, 9, temporary_panic
 	# we know it's a digit
 	
-	#sb $s1 
+	
 	
 	move $a0, $t1
 	li $v0, 11
@@ -78,7 +76,7 @@ temporary_panic:
 	
 	#a0 will contain the point in memory where the characters end
 	
-convertCharsToInt
+convertCharsToInt:
 	addi $sp, $sp -8
 	sw $ra, 4($sp) # push return program counter to stack
 	sw $fp, 0($sp) # push value of current frame pointer to stack

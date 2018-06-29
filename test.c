@@ -1,4 +1,4 @@
-#define BRONT BRONT;
+#define BRONT BRONT??;
 
 int process_digits(char a[], int len)
 {
