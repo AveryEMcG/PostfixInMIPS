@@ -2,11 +2,22 @@
 prompt:	.asciiz "enter a string: "
 errstr: .asciiz "operator not supported"
    res: .asciiz "result: "
-panic: .asciiz "Error has occurred\n"
+panic: .asciiz "BRONT has occurred\n"
     np: .asciiz "enter number: "
     op: .asciiz "enter operator: "
 
 	.text
+
+	.macro PRINTINT
+	li $v0, 1
+	syscall
+	
+	li $a0, '\n'
+	li $v0, 11
+	syscall
+	.end_macro
+	
+
 
 	.macro exit
 	li $v0, 10
@@ -45,11 +56,18 @@ main:
 	li $v0, 9
 	syscall
 	move $s2, $v0
+	
 	# int s2[128]
 	
 	la $t0, ($s0)
 	
-
+	#initializing the beginning of our integer array
+	li $t3, 0
+	sw $t3, ($s2)
+	
+	move $s3, $s2
+	
+	
 while:
 	lb $t1, ($t0)
 	beqz $t1, end
@@ -59,12 +77,24 @@ while:
 	bgt $t2, 9, temporary_panic
 	# we know it's a digit
 	
+	lw $t4, ($s3)
+	li $t5, 10
 	
+	#BRONT
 	
-	move $a0, $t1
-	li $v0, 11
-	syscall
+	mult $t4, $t5
+	mflo $t6
+
+	add $t6, $t6, $t2
+	move $a0, $t6
+	sw $t6, ($s3)
+	
+	move $a0, $t6
+	PRINTINT
+	
 	addi $t0, $t0, 1
+	
+	
 	j while
 	
 temporary_panic:
