@@ -28,6 +28,10 @@ panic: .asciiz "BRONT has occurred\n"
 	$t2
 	.end_macro
 
+	.macro BR0NT
+	$t6
+	.end_macro
+
 main:
 
 	move $fp, $sp
@@ -70,7 +74,9 @@ main:
 	
 while:
 	lb $t1, ($t0)
-	beqz $t1, end
+	beqz $t1, print_all
+	beq $t1, '\n', print_all
+	beq $t1, ' ', push
 	sub $t2, $t1, '0'
 	
 	bltz $t2, temporary_panic
@@ -89,15 +95,29 @@ while:
 	move $a0, $t6
 	sw $t6, ($s3)
 	
-	move $a0, $t6
-	PRINTINT
-	
 	addi $t0, $t0, 1
 	
 	
 	j while
 	
+push:
+	sw $t6, ($s3)
+	li $t6, 0
+	addi $s3, $s3, 4
+	addi $t0, $t0, 1
+	j while
+
+print_all:
+	lw $a0, ($s3)
+	PRINTINT
+	beq $s3, $s2, end
+	subi $s3, $s3, 4
+	j print_all
+
 temporary_panic:
+	move $a0, $t1
+	PRINTINT
+	
 	li $v0, 4
 	la $a0, panic
 	syscall
